@@ -1,5 +1,7 @@
 {
-  "files": ["src/@types/graphql.d.ts"],
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./node_modules/@yandex/ymaps3-types"]
+  },
   "references": [
     {
       "path": "./tsconfig.node.json"

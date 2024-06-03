@@ -1,4 +1,5 @@
 import type { CityElement } from '../cityElement'
+import type { LngLat } from '@yandex/ymaps3-types'
 
 export type LocationElement = {
   id: string
@@ -10,5 +11,5 @@ export type LocationElement = {
 type LocationProperties = {
   phone: string | undefined
   adress: string | undefined
-  mapPlacemark: string | undefined
+  mapPlacemark: string | LngLat
 }

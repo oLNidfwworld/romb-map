@@ -2,44 +2,125 @@
 import { useQuery } from '@vue/apollo-composable';
 import { GET_POINTS } from '@/helpers/queries/getPoints';
 import type { Deallers } from '@/helpers/types/enitities/deallers';
-import { shallowRef, watch } from 'vue';
+import { ref, shallowRef, watch } from 'vue';
 import type { CityElement } from '@/helpers/types/enitities/cityElement';
 import type { LocationElement } from '@/helpers/types/enitities/locationElement';
 import { Card } from '@/components/ui/card';
-
+import { YandexMap, YandexMapClusterer, YandexMapDefaultFeaturesLayer, YandexMapDefaultSchemeLayer, YandexMapMarker } from 'vue-yandex-maps';
+import type { LngLat, YMap } from '@yandex/ymaps3-types';
+import { getParam } from '@/composables/getParam';
+import { setParam } from '@/composables/setParam';
+const paramId = parseInt((getParam('id') as unknown) as string);
 const { result, loading } = useQuery<{
     iblock: Deallers
 }>(GET_POINTS);
+const mapIntance = shallowRef<null | YMap>(null);
 
 const cities = shallowRef<CityElement[]>();
 const elements = shallowRef<LocationElement[]>();
 
+const currentCenter = ref<LngLat>([33, 55]);
+const currentZoom = ref(9);
+const selectedCity = ref<number>();
+const selectedElements = shallowRef<LocationElement[]>();
 watch(() => loading.value, () => {
-
+    onDataLoaded();
+});
+const onDataLoaded = () => {
     if (result.value) {
-        elements.value = result.value.iblock.deallers.elements;
-        cities.value = result.value.iblock.deallers.cities;
+        elements.value = result.value.iblock.deallers.elements.map(el => {
+            return {
+                ...el,
+                city: {
+                    ...el.city,
+                    id: Number((el.city.id as unknown) as string)
+                },
+                properties: {
+                    ...el.properties,
+                    mapPlacemark: [Number((el.properties.mapPlacemark as string).split(',')[1]), Number((el.properties.mapPlacemark as string).split(',')[0])] as LngLat
+                }
+            }
+        });
+        cities.value = result.value.iblock.deallers.cities.map(city => {
+            return {
+                ...city,
+                id: Number(city.id)
+            }
+        });
+
+        if (paramId !== null && !isNaN(paramId) && (elements.value.filter(el => el.city.id === paramId).length > 0)) {
+            selectedCity.value = cities.value.find(city => Number(city.id) === paramId)?.id;
+            selectedElements.value = elements.value.filter(el => el.city.id === paramId);
+        } else {
+            selectedCity.value = cities.value[0].id;
+            selectedElements.value = elements.value.filter(el => el.city.id === selectedCity.value);
+        }
+
+        setCenter();
+    }
+}
+const setCenter = () => {
+    if (selectedElements.value && selectedElements.value?.length > 0) {
+        currentZoom.value = 9;
+        currentCenter.value = [
+            (selectedElements.value.reduce((a, b) => a + (b.properties.mapPlacemark as LngLat)[0], 0) / (selectedElements.value.length)),
+            (selectedElements.value.reduce((a, b) => a + (b.properties.mapPlacemark as LngLat)[1], 0) / (selectedElements.value.length))
+        ]
+    }
+}
+const setViewCurrentCity = (id: string) => {
+    currentZoom.value = 13;
+    currentCenter.value = elements.value?.find(el => el.id === id)?.properties.mapPlacemark as LngLat;
+}
+watch(() => selectedCity.value, (newVal) => {
+    if (elements.value) {
+        selectedElements.value = elements.value.filter(el => el.city.id === newVal);
+        setCenter();
+        setParam('id', newVal as unknown as string);
     }
 })
-
 </script>
 <template>
     <div class="deallers">
         <div class="deallers__select">
-            <div class="">
-                <p>
+            <div class="deallers__selector-box">
+                <p class="deallers__selector-title">
                     Выберите регион
                 </p>
                 <div>
-                    Здесь выбор
+                    <VSelect v-model="selectedCity" :items="cities" item-value="id" item-title="name"
+                        variant="outlined" />
                 </div>
             </div>
             <div class="deallers__list">
                 <template v-if="elements">
-                    <Card :element="element" v-for="(element) in elements" :key="element.id" />
+                    <Card @click="setViewCurrentCity(element.id)" :element="element"
+                        v-for="(element) in selectedElements" :key="element.id" />
                 </template>
             </div>
         </div>
-        <div class="deallers__map gradient-background" />
+        <div class="deallers__map gradient-background">
+            <YandexMap v-model="mapIntance" :settings="{
+                location: {
+                    center: currentCenter,
+                    zoom: currentZoom,
+                }
+            }">
+                <YandexMapDefaultSchemeLayer />
+                <YandexMapDefaultFeaturesLayer />
+                <YandexMapClusterer zoom-on-cluster-click>
+                    <YandexMapMarker v-for="(element) in elements" :key="element.id" :settings="{
+                        coordinates: (element.properties.mapPlacemark as LngLat)
+                    }">
+                        <img class="ymap-custom-marker" src="https://romb-art.ru/upload/img/pin.svg" alt="" />
+                    </YandexMapMarker>
+                    <template #cluster="{ length }">
+                        <div class="ymap-custom-cluster">
+                            {{ length }}
+                        </div>
+                    </template>
+                </YandexMapClusterer>
+            </YandexMap>
+        </div>
     </div>
 </template>

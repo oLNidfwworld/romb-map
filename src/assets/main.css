@@ -1,0 +1,10 @@
+.v-select__selection-text {
+  color: var(--blue);
+  font-size: 20px;
+  font-weight: 300;
+}
+.v-list-item-title {
+  color: var(--blue);
+  font-size: 20px;
+  font-weight: 300;
+}

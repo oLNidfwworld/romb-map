@@ -18,7 +18,9 @@
     "@vue/apollo-option": "^4.0.0",
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
-    "vue": "^3.4.21"
+    "vue": "^3.4.21",
+    "vue-yandex-maps": "^2.1.2",
+    "vuetify": "^3.6.8"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
@@ -28,6 +30,7 @@
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/tsconfig": "^0.5.1",
+    "@yandex/ymaps3-types": "^0.0.27",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.23.0",
     "npm-run-all2": "^6.1.2",

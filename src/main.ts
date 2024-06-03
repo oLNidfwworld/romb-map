@@ -5,16 +5,28 @@ import App from './App.vue'
 import { ApolloClient, InMemoryCache } from '@apollo/client/core'
 import { DefaultApolloClient } from '@vue/apollo-composable'
 
-const cache = new InMemoryCache()
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import { VSelect } from 'vuetify/components'
+import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
+import { createYmaps } from 'vue-yandex-maps'
 
+const vuetify = createVuetify({
+  components: { VSelect },
+  icons: {
+    defaultSet: 'mdi',
+    aliases,
+    sets: {
+      mdi
+    }
+  }
+})
+
+const cache = new InMemoryCache()
 const apolloClient = new ApolloClient({
   cache,
   uri: '/bitrix/services/rbx.graphql/'
 })
-
-// const apolloProvider = createApolloProvider({
-//   defaultClient: apolloClient
-// })
 
 const app = createApp({
   setup() {
@@ -23,4 +35,11 @@ const app = createApp({
   render: () => h(App)
 })
 
-app.mount('#app')
+app
+  .use(
+    createYmaps({
+      apikey: 'a316fa7a-d938-437a-a585-972dba857f0a'
+    })
+  )
+  .use(vuetify)
+  .mount('#app')
