@@ -49,10 +49,10 @@ const onDataLoaded = () => {
         });
 
         if (paramId !== null && !isNaN(paramId) && (elements.value.filter(el => el.city.id === paramId).length > 0)) {
-            selectedCity.value = cities.value.find(city => Number(city.id) === paramId)?.id;
+            selectedCity.value = cities.value.find(city => Number(city.id) === paramId)?.id as number;
             selectedElements.value = elements.value.filter(el => el.city.id === paramId);
         } else {
-            selectedCity.value = cities.value[0].id;
+            selectedCity.value = cities.value[0].id as number;
             selectedElements.value = elements.value.filter(el => el.city.id === selectedCity.value);
         }
 
