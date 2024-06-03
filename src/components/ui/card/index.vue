@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LocationElement } from '@/helpers/types/enitities/locationElement';
+import type { LocationElement } from '../../../helpers/types/enitities/locationElement';
 defineProps<{
     element: LocationElement
 }>();
