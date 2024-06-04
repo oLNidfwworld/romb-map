@@ -38,7 +38,8 @@ const app = createApp({
 app
   .use(
     createYmaps({
-      apikey: 'a316fa7a-d938-437a-a585-972dba857f0a'
+      apikey: 'a316fa7a-d938-437a-a585-972dba857f0a',
+      initializeOn: 'onPluginInit'
     })
   )
   .use(vuetify)

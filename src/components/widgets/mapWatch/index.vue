@@ -6,15 +6,16 @@ import { ref, shallowRef, watch } from 'vue';
 import type { CityElement } from '@/helpers/types/enitities/cityElement';
 import type { LocationElement } from '@/helpers/types/enitities/locationElement';
 import { Card } from '@/components/ui/card';
-import { YandexMap, YandexMapClusterer, YandexMapDefaultFeaturesLayer, YandexMapDefaultSchemeLayer, YandexMapMarker } from 'vue-yandex-maps';
-import type { LngLat, YMap } from '@yandex/ymaps3-types';
+import type { LngLat } from '@yandex/ymaps3-types';
 import { getParam } from '@/composables/getParam';
 import { setParam } from '@/composables/setParam';
+import { Map } from '../ map';
+
+
 const paramId = parseInt((getParam('id') as unknown) as string);
 const { result, loading } = useQuery<{
     iblock: Deallers
 }>(GET_POINTS);
-const mapIntance = shallowRef<null | YMap>(null);
 
 const cities = shallowRef<CityElement[]>();
 const elements = shallowRef<LocationElement[]>();
@@ -100,27 +101,9 @@ watch(() => selectedCity.value, (newVal) => {
             </div>
         </div>
         <div class="deallers__map gradient-background">
-            <YandexMap v-model="mapIntance" :settings="{
-                location: {
-                    center: currentCenter,
-                    zoom: currentZoom,
-                }
-            }">
-                <YandexMapDefaultSchemeLayer />
-                <YandexMapDefaultFeaturesLayer />
-                <YandexMapClusterer zoom-on-cluster-click>
-                    <YandexMapMarker v-for="(element) in elements" :key="element.id" :settings="{
-                        coordinates: (element.properties.mapPlacemark as LngLat)
-                    }">
-                        <img class="ymap-custom-marker" src="https://romb-art.ru/upload/img/pin.svg" alt="" />
-                    </YandexMapMarker>
-                    <template #cluster="{ length }">
-                        <div class="ymap-custom-cluster">
-                            {{ length }}
-                        </div>
-                    </template>
-                </YandexMapClusterer>
-            </YandexMap>
+            <Suspense>
+                <Map :current-center="currentCenter" :current-zoom="currentZoom" :elements="elements" />
+            </Suspense>
         </div>
     </div>
 </template>
