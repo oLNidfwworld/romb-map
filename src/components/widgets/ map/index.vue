@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { LocationElement } from '@/helpers/types/enitities/locationElement';
-import { YandexMap, YandexMapClusterer, YandexMapDefaultFeaturesLayer, YandexMapDefaultSchemeLayer, YandexMapMarker } from 'vue-yandex-maps';
+import { YandexMap, YandexMapClusterer, YandexMapControl, YandexMapControls, YandexMapDefaultFeaturesLayer, YandexMapDefaultSchemeLayer, YandexMapGeolocationControl, YandexMapMarker, YandexMapZoomControl } from 'vue-yandex-maps';
 import type { LngLat } from '@yandex/ymaps3-types';
 
 
@@ -19,7 +19,8 @@ defineProps<IProps>();
         location: {
             center: currentCenter,
             zoom: currentZoom,
-        }
+        },
+        behaviors: []
     }">
         <YandexMapDefaultSchemeLayer />
         <YandexMapDefaultFeaturesLayer />
@@ -35,6 +36,10 @@ defineProps<IProps>();
                 </div>
             </template>
         </YandexMapClusterer>
+        <YandexMapControls :settings="{ position: 'right' }">
+            <YandexMapGeolocationControl />
+            <YandexMapZoomControl />
+        </YandexMapControls>
     </YandexMap>
 
 </template>
