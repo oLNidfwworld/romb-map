@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { LocationElement } from '@/helpers/types/enitities/locationElement';
 import { YandexMap, YandexMapClusterer, YandexMapControl, YandexMapControls, YandexMapDefaultFeaturesLayer, YandexMapDefaultSchemeLayer, YandexMapGeolocationControl, YandexMapMarker, YandexMapZoomControl } from 'vue-yandex-maps';
-import type { LngLat } from '@yandex/ymaps3-types';
-import { ref } from 'vue';
+import type { LngLat, YMap } from '@yandex/ymaps3-types';
+import { onMounted, ref, shallowRef, watch } from 'vue';
 import { vOnClickOutside } from '@vueuse/components'
+import { useMediaQuery } from '@vueuse/core';
+import type { BehaviorType } from '@yandex/ymaps3-types';
 
 interface IProps {
     elements: LocationElement[] | undefined
@@ -14,16 +16,23 @@ interface IProps {
 defineProps<IProps>();
 
 const openMarker = ref<null | string>(null);
+const media = useMediaQuery('(min-width: 1024px)');
+const map = shallowRef<null | YMap>(null); 
 
+const behaviors = ref(((media.value) ? ['drag'] : []) as BehaviorType[]);     
+watch ( media, ( newVal ) => {
+    (newVal) ? behaviors.value = [ 'drag'] : behaviors.value = [];
+    // map.value?.setBehaviors((newVal) ? ['drag'] : []);
+}) 
 </script>
 <template>
 
-    <YandexMap :settings="{
+    <YandexMap v-model:model-value="map" :settings="{
         location: {
             center: currentCenter,
             zoom: currentZoom,
-        },
-        behaviors: ['drag']
+        }, 
+        behaviors : behaviors
     }">
         <YandexMapDefaultSchemeLayer />
         <YandexMapDefaultFeaturesLayer />
