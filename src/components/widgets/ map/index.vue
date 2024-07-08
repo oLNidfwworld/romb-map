@@ -23,7 +23,7 @@ const openMarker = ref<null | string>(null);
             center: currentCenter,
             zoom: currentZoom,
         },
-        behaviors: []
+        behaviors: ['drag']
     }">
         <YandexMapDefaultSchemeLayer />
         <YandexMapDefaultFeaturesLayer />
